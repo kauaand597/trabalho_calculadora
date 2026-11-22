@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conversões</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: #f0f0f0; font-family: Calibri, "Segoe UI", Arial, sans-serif; color: #000; }
+  .janela { max-width: 700px; margin: 0 auto; display: grid; grid-template-columns: 1fr 230px; gap: 8px; }
+  .titulo { grid-column: 1 / -1; background: #000; color: #fff; text-align: center; padding: 14px; font-size: 1.25rem; font-weight: bold; }
+  .botoes { background: #fff; padding: 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-content: start; }
+  .botoes button { display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid transparent; background: #f0f0f0; font: inherit; font-size: 1rem; cursor: pointer; text-align: left; }
+  .botoes button:hover { border-color: #000; }
+  .botoes button[aria-pressed="true"] { background: #000; color: #fff; }
+  .botoes .ico { font-size: 1.6rem; line-height: 1; }
+  .painel { padding: 0 4px; }
+  .painel h2 { margin: 0 0 16px; background: #000; color: #fff; text-align: center; font-size: 1.15rem; padding: 14px 4px; }
+  .linha { display: grid; grid-template-columns: 38px 1fr 1fr; gap: 6px; align-items: center; margin-bottom: 8px; }
+  .linha span { font-weight: bold; font-size: .9rem; }
+  select, input { width: 100%; font: inherit; padding: 5px; border: 1px solid #000; background: #fff; text-align: center; }
+  label { display: block; font-weight: bold; margin: 14px 0 4px; }
+  .dica { font-size: .8rem; margin: 4px 0 0; }
+  .entrada { display: flex; gap: 6px; }
+  .entrada input { flex: 1; min-width: 0; }
+  .entrada button { padding: 5px 12px; border: 1px solid #000; background: #f0f0f0; font: inherit; font-weight: bold; cursor: pointer; }
+  .entrada button:hover { background: #ddd; }
+  #resultado { font-size: 1.2rem; font-weight: bold; text-align: center; padding: 6px 0; min-height: 2rem; overflow-wrap: anywhere; }
+  #resultado.erro { font-size: .9rem; color: #b00020; }
+  .rodape { grid-column: 1 / -1; font-size: .85rem; padding: 8px 4px; }
+  .rodape p { margin: 2px 0; }
+  .oculto { display: none; }
+  @media (max-width: 640px) { .janela { grid-template-columns: 1fr; } .botoes { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<main class="janela">
+  <header class="titulo">Calculadora Conversão Unidades</header>
+
+  <section class="botoes" id="botoes" aria-label="Grandezas"></section>
+
+  <section class="painel" aria-live="polite">
+    <h2 id="nomeGrandeza">- - -</h2>
+    <div id="controles" class="oculto">
+      <div class="linha"><span>De</span><select id="de1"></select><select id="de2" class="oculto"></select></div>
+      <div class="linha"><span>Para</span><select id="para1"></select><select id="para2" class="oculto"></select></div>
+      <label for="numero">Digite o valor:</label>
+      <div class="entrada">
+        <input id="numero" type="text" inputmode="decimal" autocomplete="off">
+        <button id="calcular" type="button">Calcular</button>
+      </div>
+      <p class="dica">Pode usar . ou , como separador decimal.</p>
+      <label>Resultado:</label>
+      <div id="resultado">000000</div>
+    </div>
+    <p id="aviso">Escolha uma grandeza ao lado.</p>
+  </section>
+
+  <footer class="rodape">
+    <p>Produzido por: Kauã A. Dantas e </p>
+    <p>Mat: 222005330; 241036394</p>
+  </footer>
+</main>
+
+<script>
+// A unidade de referência é sempre a primeira de cada lista (fator 1).
+// Cada fator diz quantas unidades existem para 1 unidade de referência.
+const unidades = {
+  'Força': [['tf',1],['kgf',1000],['gf',1000000],['N',9806.65],['kN',9.80665],['Lbf',2204.62],['oz',35273.83095],['kip',2.20461499]],
+  'Comprimento': [['m',1],['km',0.001],['ft',3.2808],['in',39.37],['cm',100],['mm',1000],['yd',1.09361],['mi',0.000621371]],
+  'Angulos': [['Graus',1],['rad',0.0174533]],
+  'Area': [['m²',1],['km²',0.000001],['ft²',10.7639],['in²',1550],['cm²',10000],['mm²',1000000],['dcm²',100],['yd²',1.196]],
+  'Energia': [['J',1],['ft.lb',0.737562]],
+  'Momento': [['N.m',1],['lb.ft',0.737562],['lb.in',8.85075]],
+  'Tempo': [['h',1],['min',60],['s',3600]],
+  'Massa': [['Kg',1],['g',1000],['mg',1000000],['ton',0.001],['slug',0.0685218]],
+  'Volume': [['m³',1],['dm³',1000],['cm³',1000000],['mm³',1000000000],['pol³',61023.7],['pe³',35.3147],['yd³',1.30795],['gal',264.172],['qt',1056.69]],
+  'Aceleracao': [['m/s²',1],['pes/s²',3.28084],['km/h²',12960]]
+};
+
+// Grandezas simples usam uma lista; compostas usam duas (numerador / denominador).
+const grandezas = [
+  { nome: 'Comprimento', icone: '📏', num: 'Comprimento' },
+  { nome: 'Aceleração',  icone: '🚀', num: 'Aceleracao' },
+  { nome: 'Ângulos',     icone: '📐', num: 'Angulos' },
+  { nome: 'Área',        icone: '⬛', num: 'Area' },
+  { nome: 'Energia',     icone: '⚡', num: 'Energia' },
+  { nome: 'Força',       icone: '💪', num: 'Força' },
+  { nome: 'Momento',     icone: '🔩', num: 'Momento' },
+  { nome: 'Pressão',     icone: '🎈', num: 'Força', den: 'Area' },
+  { nome: 'Tempo',       icone: '⏱️', num: 'Tempo' },
+  { nome: 'Velocidade',  icone: '🏎️', num: 'Comprimento', den: 'Tempo' },
+  { nome: 'Massa',       icone: '⚖️', num: 'Massa' },
+  { nome: 'Volume',      icone: '🧊', num: 'Volume' }
+];
+
+const $ = id => document.getElementById(id);
+let atual = null;
+
+function preencher(select, lista) {
+  select.innerHTML = lista.map(([nome]) => `<option>${nome}</option>`).join('');
+}
+
+function fator(grandeza, nome) {
+  return unidades[grandeza].find(u => u[0] === nome)[1];
+}
+
+function escolher(g, botao) {
+  atual = g;
+  document.querySelectorAll('#botoes button').forEach(b => b.setAttribute('aria-pressed', b === botao));
+  $('nomeGrandeza').textContent = g.nome;
+  $('aviso').classList.add('oculto');
+  $('controles').classList.remove('oculto');
+
+  preencher($('de1'), unidades[g.num]);
+  preencher($('para1'), unidades[g.num]);
+  const composta = Boolean(g.den);
+  ['de2', 'para2'].forEach(id => {
+    $(id).classList.toggle('oculto', !composta);
+    if (composta) preencher($(id), unidades[g.den]);
+  });
+  // Layout: "De [num] [den]" ; as colunas ficam alinhadas com 2 selects
+  document.querySelectorAll('.linha').forEach(l => {
+    l.style.gridTemplateColumns = composta ? '38px 1fr 1fr' : '38px 1fr';
+  });
+  $('numero').value = '';
+  $('resultado').className = '';
+  $('resultado').textContent = '000000';
+}
+
+function calcular() {
+  const g = atual;
+  const saida = $('resultado');
+  const n = parseFloat($('numero').value.trim().replace(',', '.'));
+  if (Number.isNaN(n)) {
+    saida.className = 'erro';
+    saida.textContent = 'Digite um número válido.';
+    return;
+  }
+  // Converte o numerador: valor / fator(de) * fator(para)
+  let r = n / fator(g.num, $('de1').value) * fator(g.num, $('para1').value);
+  // Converte o denominador (velocidade, pressão): multiplica por fator(de) / fator(para)
+  if (g.den) r *= fator(g.den, $('de2').value) / fator(g.den, $('para2').value);
+
+  saida.className = '';
+  const arredondado = Math.round(r * 10000) / 10000;
+  saida.textContent = (arredondado === 0 && r !== 0 ? r.toPrecision(4) : arredondado).toString().replace('.', ',');
+}
+
+grandezas.forEach(g => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = `<span class="ico">${g.icone}</span><span>${g.nome}</span>`;
+  b.addEventListener('click', () => escolher(g, b));
+  $('botoes').appendChild(b);
+});
+$('calcular').addEventListener('click', calcular);
+$('numero').addEventListener('keydown', e => { if (e.key === 'Enter') calcular(); });
+</script>
+</body>
+</html>

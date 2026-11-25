@@ -1,0 +1,114 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lobster&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+  * { 
+
+    box-sizing: border-box; 
+  
+  }
+  body {
+     margin: 0; padding: 16px; background: #f0f0f0; font-family: Roboto, "Segoe UI", Arial, sans-serif; color: #000;
+  
+    }
+
+
+
+
+  .navbar {
+    display: flex;
+    flex-flow: row wrap;
+    height: 100px;
+    background: #ffffff;
+    justify-content: center;
+    align-items: center;
+
+  }
+
+  .logo {
+
+    flex: 20%;
+    border:1px solid #ffffff;
+    text-align: center;
+    margin-left: 10%;
+  }
+  .logo h1 {
+    font-family: Lobster, "Segoe UI", Arial, sans-serif;
+    font-size: 34px;
+    color: #180f4a;
+    margin:0;
+  }
+
+  .menu {
+    flex: 70%;
+    border:1px solid #ffffff;
+    text-align: right;
+    padding-right: 20px;
+  }
+  .menu a {
+    text-decoration: none;
+    color: #180f4a;
+    font-size: 20px;
+    padding: 20px 16px;
+    
+  }
+  .menu a:hover {
+    color: #ff2978;
+    border-top: 4px solid #180f4a;
+  }
+  #sobre{
+    padding: 10px 25px;
+    background: #180f4a;
+    color: #fff;
+    border-radius: 5px;
+    margin-right: 10%;
+    margin-left: 5%;
+  }
+  #sobre:hover{
+    border: none;
+    background: #ff2978;
+  }
+
+
+
+
+
+
+
+  .janela {
+  max-width: 700px;                  /* largura total da janela */
+  margin: 0 ;                    /* centraliza na tela */
+  display: grid;
+  grid-template-columns: 1fr 210px;  /* botões | painel */
+  gap: 4px;
+  border: 1px solid #000;            /* borda */
+  padding: 3px;                      /* espaço entre a borda e o conteúdo */
+  border-radius: 2px;
+}
+
+
+  .titulo { grid-column: 1 / -1; background: #000; color: #fff; text-align: center; padding: 14px; font-size: 1.25rem; font-weight: bold; }
+  .botoes { background: #fff; padding: 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-content: start; }
+  .botoes button { display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid transparent; background: #f0f0f0; font: inherit; font-size: 1rem; cursor: pointer; text-align: left; }
+  .botoes button:hover { border-color: #000; }
+  .botoes button[aria-pressed="true"] { background: #000; color: #fff; }
+  .botoes .ico { font-size: 1.6rem; line-height: 1; }
+  .painel { padding: 0 4px; }
+  .painel h2 { margin: 0 0 16px; background: #000; color: #fff; text-align: center; font-size: 1.15rem; padding: 14px 4px; }
+  .linha { display: grid; grid-template-columns: 38px 1fr 1fr; gap: 6px; align-items: center; margin-bottom: 8px; }
+  .linha span { font-weight: bold; font-size: .9rem; }
+  select, input { width: 100%; font: inherit; padding: 5px; border: 1px solid #000; background: #fff; text-align: center; }
+  label { display: block; font-weight: bold; margin: 14px 0 4px; }
+  .dica { font-size: .8rem; margin: 4px 0 0; }
+  .entrada { display: flex; gap: 6px; }
+  .entrada input { flex: 1; min-width: 0; }
+  .entrada button { padding: 5px 12px; border: 1px solid #000; background: #f0f0f0; font: inherit; font-weight: bold; cursor: pointer; }
+  .entrada button:hover { background: #ddd; }
+  #resultado { font-size: 1.2rem; font-weight: bold; text-align: center; padding: 6px 0; min-height: 2rem; overflow-wrap: anywhere; }
+  #resultado.erro { font-size: .9rem; color: #b00020; }
+  .rodape { grid-column: 1 / -1; font-size: .85rem; padding: 8px 4px; }
+  .rodape p { margin: 2px 0; }
+  .oculto { display: none; }
+  @media (max-width: 640px) { .janela { grid-template-columns: 1fr; } .botoes { grid-template-columns: repeat(2, 1fr); } }
+
